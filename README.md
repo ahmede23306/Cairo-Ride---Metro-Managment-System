@@ -1,208 +1,171 @@
-CairoRide
-A console-based C++ application simulating a metro transit system, allowing users to manage subscriptions and rides, with robust admin controls for system management.
-Overview
-CairoRide is a comprehensive metro transit simulation built in C++ that enables users to register accounts, select from three subscription plans (Scholar Pass, General Pass, Smart Wallet), and plan rides across three metro lines with zone-based pricing (8-20 LE for 1-9 to 23+ stations). Admins can manage user accounts, subscriptions, stations, fare rates, and access detailed ride logs. The system leverages arrays of structures for efficient data management, supports ride history tracking, statistical analysis, and persists data using file I/O. Designed for ease of use, it provides a text-based interface with potential for GUI enhancements.
-Features
-User Functionalities
+# Metro Management System
 
-Account Management:
-Register with a unique ID (1-1000), name, password (8+ characters with upper, lower, and special characters), and age.
-Login securely with ID and password; supports password hiding during input.
-Edit personal details (name, password, balance) and view account information.
+A comprehensive C++ console application for managing a metro/subway system, supporting user and admin operations, subscription plans, ride tracking, and system statistics. This project demonstrates modular programming, file I/O, and advanced data handling in C++.
 
+---
 
-Subscription Plans:
-Scholar Pass: 180 trips over 3 months, priced at 150, 200, 250, or 300 LE for Zones 1-4.
-General Pass: 60 trips/month (310, 365, 425, 600 LE for Zones 1-4) or 730 trips/year (3500, 4000, 4500, 5000 LE).
-Smart Wallet: Pay-per-ride with funds added in 10 LE increments (max 400 LE), no trip limits.
-Users can purchase, renew, or change plans, with zone-based restrictions for Scholar and General Passes.
+## Table of Contents
 
+- [Features](#features)
+- [Code Structure](#code-structure)
+- [Data Model](#data-model)
+- [Metro Lines & Zones](#metro-lines--zones)
+- [User Flow](#user-flow)
+- [Admin Flow](#admin-flow)
+- [Subscription System](#subscription-system)
+- [Ride Management](#ride-management)
+- [Statistics & Data Persistence](#statistics--data-persistence)
+- [Getting Started](#getting-started)
 
-Ride Planning:
-Select start and end stations across three metro lines (Line 1: 35 stations, Line 2: 20 stations, Line 3: 23 stations).
-Supports interchange stations (e.g., Al-Shohadaa, Nasser, Attaba) and Kit-Kat branches (Rod El-Farag, Cairo University).
-Displays metro map with stations and zones traversed; calculates fares based on zones (1-9 stations: 8 LE, 10-16: 10 LE, 17-23: 15 LE, 23+: 20 LE).
-Deducts trips (Scholar/General) or balance (Smart Wallet) upon checkout.
+---
 
+## Features
 
-Ride History:
-Records ride details (ride ID, start/end stations, date/time) for each user.
-Users can view their ride history; admins can access system-wide logs.
+- **User Registration & Login**: Secure, with password strength validation and hidden input.
+- **Role-Based Access**: User and admin accounts with distinct privileges.
+- **Metro Lines & Stations**: Supports over 80 stations across three lines, with dynamic zone mapping.
+- **Subscriptions**: Multiple plans (e.g., Scholar Pass, General Pass), monthly/yearly, zone-based pricing, trip limits.
+- **Smart Wallet**: Users can add funds and pay fares or renew subscriptions.
+- **Ride Management**: Users can take rides, with fare calculation based on zones and trip history tracking.
+- **Admin Tools**: Manage user accounts, edit subscription plans, update station lists, and view system statistics.
+- **Data Persistence**: Functions for saving/loading users, subscriptions, and statistics (file I/O stubs provided).
+- **Statistics**: Usage analytics, ride frequency, and more.
 
+---
 
-Wallet Management:
-Add funds to Smart Wallet or pay for subscriptions via balance.
-Ensures sufficient balance for rides or renewals.
+## Code Structure
 
+The code is organized into logical sections using regions and function groups:
 
+- **Global Variables & Constants**: Define system-wide parameters, station lists, zones, and pricing.
+- **Structs**: Represent users, admins, subscriptions, rides, and history.
+- **Utility Functions**: For time handling, input validation, and password security.
+- **User/Admin Functions**: Registration, login, account management, and menu navigation.
+- **Subscription Management**: Handling of plans, payments, renewals, and plan editing.
+- **Ride Functions**: Route selection, fare calculation, trip deduction, and ride history.
+- **Admin Tools**: Account management, plan editing, and statistics.
+- **Statistics & File I/O**: Data storage, reading, and analytics (functions provided for extension).
 
-Admin Functionalities
+---
 
-User Control:
-View, modify, or delete user accounts (requires admin token: 1929).
-Access user details (name, ID, password, role, subscription, balance, age).
+## Data Model
 
+| Struct                  | Purpose                                                                 |
+|-------------------------|-------------------------------------------------------------------------|
+| `user_and_admin_struct` | Stores user/admin details (role, name, ID, password, age, subscription) |
+| `subscription`          | Tracks user subscription (type, dates, trips, zones, payment)           |
+| `system_subscriptions`  | Defines available plans (name, symbol, duration, pricing, trip limits)  |
+| `user_struct`           | User account info (ID, balance, subscription, zone)                     |
+| `ride_struct`           | Ride details (ID, start/end stations, date/time)                        |
+| `Ride_history`          | Per-user ride history                                                   |
 
-Subscription Management:
-Add, edit, or remove subscription plans (up to 13 plans).
-Modify plan details (name, symbol, duration, zone prices, trip limits).
+---
 
+## Metro Lines & Zones
 
-Station Management:
-Add or remove stations on any line, updating line indices and interchange points.
-Prevents removal of critical interchange stations (e.g., Al-Shohadaa, Nasser).
+- **Stations**: Defined in arrays, with over 80 unique station names.
+- **Lines**: Three main lines, with branch logic for special stations (e.g., Kit Kat, Rod El-Farag Axis).
+- **Zones**: Stations grouped into 11+ zones, each with its own pricing and trip logic.
+- **Zone Pricing**: Default prices are set (e.g., Zone 1: 8, Zone 2: 10, etc.), and can be modified by admins.
 
+---
 
-Fare Adjustments:
-Update zone prices (e.g., Zone 1 from 8 LE to new value).
-Changes apply to Smart Wallet deductions and subscription pricing.
+## User Flow
 
+1. **Registration/Login**:  
+   - Unique ID, name (no numbers), strong password (min 8 chars, upper/lower/special).
+   - Login requires correct ID and password.
 
-System Analytics:
-Generate statistics on user age distribution, subscription popularity, and station usage (most entered/exited stations).
-Tracks total trips across the system.
+2. **Profile Management**:  
+   - View/update personal data.
+   - Add funds to the smart wallet.
 
+3. **Subscription**:  
+   - Choose from available plans.
+   - View, renew, or change subscriptions.
+   - Payment from wallet or on renewal.
 
+4. **Taking Rides**:  
+   - Select start/end stations.
+   - Calculates route, zone, and fare.
+   - Deducts fare/trips.
+   - Logs ride history.
 
-Technical Details
+5. **Ride History**:  
+   - View ride history: date, time, stations.
 
-Data Structures:
-user_struct: Stores user ID, balance, subscription details, and zone.
-subscription: Holds plan type, activation/expiry dates, remaining trips, zones, and payment.
-ride_struct: Records ride ID, start/end stations, and date/time.
-system_subscriptions: Manages subscription plan details (name, symbol, duration, prices, trips).
-Arrays (arr_user, users, rides, RideHistory) for up to 1001 users, with boolean arrays (isUnique, subscipetion_or_not) for tracking.
+---
 
+## Admin Flow
 
-Metro System:
-85 stations across 3 lines (Line 1: New Marg to Helwan, Line 2: Shubra El-Khaimah to El Monib, Line 3: Adly Mansour to Kit-Kat/Cairo University).
-11 geographical zones for fare calculation, with interchange stations for line transitions.
-Kit-Kat station branches into Rod El-Farag and Cairo University paths on Line 3.
+1. **Account Management**:  
+   - View, modify, or delete accounts.
+   - Reset passwords, update user data.
 
+2. **Subscription Plans**:  
+   - Add/edit/remove plans.
+   - Adjust zone pricing and limits.
 
-File I/O:
-Stores user data (file_user_and_admin.txt), subscriptions (Subscriptions.txt), and statistics (statistics.txt).
-Supports data restoration on startup and saving on exit.
+3. **Station Management**:  
+   - Add/remove/edit stations and zones.
 
+4. **Statistics**:  
+   - System usage, ride frequencies, analytics.
 
-Input Validation:
-Ensures valid inputs for IDs, passwords, station selections, and numeric values.
-Handles errors (e.g., duplicate IDs, invalid station choices) with clear prompts.
+---
 
+## Subscription System
 
-Code Organization:
-Modular design with functions for account management (register_form, login_form), ride planning (system_ride, start_calc), subscription handling (subscriptiondataentry, renewSubscriptionPlan), and admin tasks (Admin_Subscriptions_control, add_station).
-Uses #pragma region for grouping related code (e.g., sign-in, rides, statistics).
+- **Plan Structure**:  
+  Name, symbol, duration, zone-based pricing, trip limits.
 
+- **Default Plans**:  
+  - *Scholar Pass*: 3 months, low cost, high trips.
+  - *General Pass*: Monthly/yearly, standard pricing.
+  - *Custom plans*: Admin-defined.
 
+- **Management**:  
+  - Subscribe, renew, or switch.
+  - Admins can edit plan data.
 
-Code Explanation
-The main.cpp file (over 47,000 characters) is the core of CairoRide, structured as follows:
+---
 
-Global Variables and Constants:
+## Ride Management
 
-Defines metro lines (start_line1, end_line1, etc.), station counts (85 total), and zone prices (8-20 LE).
-Arrays for stations (stations, stations_read), zones (zone_1 to zone_11), and user data (arr_user, users).
-Constants like number_of_users_and_admin (1001) and max_subscription_plans (13).
+- **Route Calculation**:  
+  - Handles single/multi-line travel.
+  - Determines zones based on stations.
 
+- **Fare Deduction**:  
+  - Deducts fare from wallet or subscription.
+  - Validates available balance/trips.
 
-Data Structures:
+- **Ride Logging**:  
+  - Records start/end stations and time.
+  - Viewable by users/admins.
 
-user_and_admin_struct: Stores role ('U' for user, 'A' for admin), name, ID, password, subscription type, and age.
-subscription: Tracks plan type, dates, trips, zones, and payment.
-ride_struct and Ride_history: Log ride details per user.
-system_subscriptions: Defines subscription blueprints (e.g., Scholar Pass with 180 trips).
+---
 
+## Statistics & Data Persistence
 
-Key Functions:
+- **Statistics**:  
+  - Rides per station.
+  - Subscription and user analytics.
 
-Account Management:
-start_menu: Entry point for registration or login.
-register_form: Validates user input (unique ID, strong password) and assigns subscriptions.
-login_form: Authenticates users/admins and directs to respective menus.
-storage_the_data_of_user_and_admin: Saves user data to file.
+- **Data Storage**:  
+  - File I/O stubs for saving/loading data.
 
+---
 
-Subscription Handling:
-initialize_default_subscriptions: Sets up Scholar, General, and Smart Wallet plans.
-subscriptiondataentry: Guides users through plan and zone selection.
-Admin_Subscriptions_control: Allows admins to add/edit/remove plans.
+## Getting Started
 
+### Prerequisites
 
-Ride Planning:
-system_ride: Initiates ride planning with start_calc.
-start_calc and check_line: Handle station/line selection and route calculation.
-list_intersect_line_1_2, list_same_line: Display metro maps for inter-line or same-line trips.
-check_out: Deducts trips or balance based on subscription type.
+- C++17 compatible compiler (GCC, MSVC)
+- Windows (uses `localtime_s`, `_getch()`)
+- Console-based
 
+### Compilation
 
-Station Management:
-add_station, remove_station: Modify station lists, updating indices and history.
-History_Shift_Handling: Adjusts ride history when stations are added/removed.
-
-
-Statistics:
-statistics: Analyzes user ages, subscription types, and station frequencies.
-storage_the_data_of_statistics: Saves analytics to file.
-
-
-
-
-Execution Flow:
-
-main(): Initializes data (restores from files, sets default subscriptions), displays welcome message, and starts the menu loop.
-Users navigate through text prompts, with input validation ensuring robust operation.
-Data is saved to files on exit, preserving user and system state.
-
-
-
-Installation
-
-Clone the Repository:
-git clone https://github.com/<your-username>/CairoRide.git
-
-
-Compile the Code:
-
-Ensure a C++ compiler (e.g., g++) is installed.
-
-Navigate to the project directory:
-cd CairoRide
-g++ -o CairoRide main.cpp
-
-
-
-
-Run the Application:
-./CairoRide
-
-
-
-Usage
-
-Users:
-Register with a unique ID and password, then select a subscription plan.
-Plan rides by choosing start/end stations and lines; confirm to deduct trips or balance.
-View/edit profile, subscription, or ride history via the user menu.
-
-
-Admins:
-Register with admin role and use token (1929) to access admin menu.
-Manage users, subscriptions, stations, and fares; view system logs and statistics.
-
-
-Data Persistence:
-User data, subscriptions, and statistics are saved to file_user_and_admin.txt, Subscriptions.txt, and statistics.txt.
-Files are loaded on startup to restore system state.
-
-
-
-Future Enhancements
-
-Implement a Graphical User Interface (GUI) for improved user experience.
-Support zone-based subscriptions (e.g., restrict Scholar Pass to specific zones).
-Generate detailed analytical reports (e.g., peak travel times, zone usage trends).
-Add multi-language support for broader accessibility.
-
-Contributing
-Contributions are welcome! Please fork the repository, create a feature branch, and submit a pull request with your changes. Ensure code follows the existing style and includes relevant comments.
+```bash
+g++ -std=c++17 -o metro main.cpp
